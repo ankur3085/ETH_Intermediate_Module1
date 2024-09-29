@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.20;
 
-contract SimpleLibrarySystem {
+contract LibrarySystem {
 
     struct Book {
         string title;
