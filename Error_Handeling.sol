@@ -2,38 +2,38 @@
 
 pragma solidity 0.8.20;
 
-contract TokenErrorHandling {
+contract SimpleLibrarySystem {
 
-    mapping(address => uint) public balances;
-
-    constructor() {
-        // Initial token distribution for demonstration
-        balances[msg.sender] = 5000; // Assigning 5000 tokens to the contract deployer
+    struct Book {
+        string title;
+        uint copiesAvailable;
     }
 
-    // Function to withdraw tokens using require
-    function withdrawWithRequire(uint amount) public {
-        require(balances[msg.sender] >= amount, "Insufficient balance");
-        balances[msg.sender] -= amount;
+    mapping(uint => Book) public books;
+    mapping(address => mapping(uint => uint)) public borrowedBooks;
+
+    // Function to add a new book (with `require` error handling)
+    function addBook(uint bookId, string memory title, uint copies) public {
+        require(bytes(title).length > 2, "Book title cannot be short");
+        books[bookId] = Book(title, copies);
     }
 
-    // Function to withdraw tokens using revert
-    function withdrawWithRevert(uint amount) public {
-        if (balances[msg.sender] < amount) {
-            revert("Insufficient balance to withdraw");
+    // Function to borrow a book (with `revert` error handling)
+    function borrowBook(uint bookId, uint quantity) public {
+        if (books[bookId].copiesAvailable < quantity) {
+            revert("Not enough copies available to borrow");
         }
-        balances[msg.sender] -= amount;
+        books[bookId].copiesAvailable -= quantity;
+        borrowedBooks[msg.sender][bookId] += quantity;
     }
 
-    // Function to withdraw tokens using assert
-    function withdrawWithAssert(uint amount) public {
-        uint initialBalance = balances[msg.sender];
-        balances[msg.sender] -= amount;
-        assert(balances[msg.sender] == initialBalance - amount);
-    }
-
-    // Function to check the balance of the caller
-    function checkBalance() public view returns (uint) {
-        return balances[msg.sender];
+    // Function to return a book (with `assert` error handling)
+    function returnBook(uint bookId, uint quantity) public {
+        uint initialBorrowed = borrowedBooks[msg.sender][bookId];
+        borrowedBooks[msg.sender][bookId] -= quantity;
+        books[bookId].copiesAvailable += quantity;
+        
+        // Ensure the correct number of books were returned
+        assert(borrowedBooks[msg.sender][bookId] == initialBorrowed - quantity);
     }
 }
