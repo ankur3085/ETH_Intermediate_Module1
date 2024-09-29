@@ -1,59 +1,69 @@
-# TokenErrorHandling Smart Contract
+# Library System
 
-This is a simple Ethereum smart contract implemented in Solidity that demonstrates different error handling mechanisms (`require`, `revert`, and `assert`) while withdrawing tokens. The contract assigns an initial balance of 5000 tokens to the contract deployer and allows users to withdraw tokens, with each function handling potential errors differently.
+This is a basic decentralized library system built using Solidity. The smart contract enables users to add books, borrow them, and return them while ensuring proper error handling through Solidity's `require`, `revert`, and `assert` statements.
 
 ## Features
 
-- **Initial Token Distribution:** 
-  - Upon deployment, the contract assigns 5000 tokens to the deployer's address.
-  
-- **Withdraw Tokens with Error Handling:**
-  - **`withdrawWithRequire(uint amount)`**: Uses `require` to check for sufficient balance before allowing a withdrawal.
-  - **`withdrawWithRevert(uint amount)`**: Uses `revert` for error handling, reverting the transaction if there are insufficient tokens.
-  - **`withdrawWithAssert(uint amount)`**: Uses `assert` to verify the correctness of the internal logic after deduction.
-
-- **Check Balance:**
-  - **`checkBalance()`**: Allows any address to view its token balance.
+- **Add Book**: Admin can add a new book with a title and a specified number of copies available.
+- **Borrow Book**: Users can borrow a specific quantity of available books.
+- **Return Book**: Users can return the books they borrowed, with an assertion to ensure the correct number of books is returned.
 
 ## Functions
 
-### `withdrawWithRequire(uint amount)`
-- **Description**: Withdraws tokens if the caller has sufficient balance, using `require` for error handling.
-- **Error Handling**: If the balance is insufficient, the transaction will fail with a `require` statement and an error message.
+### 1. `addBook`
 
-### `withdrawWithRevert(uint amount)`
-- **Description**: Withdraws tokens if the caller has sufficient balance, using `revert` for error handling.
-- **Error Handling**: If the balance is insufficient, the transaction is explicitly reverted using a `revert` statement.
+Adds a new book to the system.
 
-### `withdrawWithAssert(uint amount)`
-- **Description**: Withdraws tokens and uses `assert` to ensure that the withdrawal logic is correct.
-- **Error Handling**: If the balance does not match the expected value after deduction, the contract will fail using `assert`.
+```solidity
+function addBook(uint bookId, string memory title, uint copies) public
+```
 
-### `checkBalance()`
-- **Description**: Returns the current balance of the caller.
+**Parameters:**
+- `bookId`: The unique ID of the book.
+- `title`: The title of the book (must be at least 3 characters long).
+- `copies`: The number of copies available in the library.
 
-## Usage
+**Error Handling:**
+- `require`: Ensures the book title is at least 3 characters long.
 
-1. **Deploy** the contract to an Ethereum-compatible blockchain (e.g., Ethereum testnet).
-2. Once deployed, the deployer will have 5000 tokens assigned to their address.
-3. Other addresses will start with a zero balance.
-4. Call `withdrawWithRequire`, `withdrawWithRevert`, or `withdrawWithAssert` to withdraw tokens from your balance.
-5. Use `checkBalance` to check your current token balance.
+### 2. `borrowBook`
 
-## Error Handling Explained
+Allows a user to borrow a specified quantity of a book.
 
-- **`require`**: Checks a condition and reverts the transaction if the condition is false. It's used to validate inputs and ensure that certain conditions are met.
-  
-- **`revert`**: Similar to `require`, but more flexible and can be used within more complex conditions or functions to explicitly signal failure.
-  
-- **`assert`**: Used for internal errors and invariants. It should only fail in cases where there's a bug in the contract's logic.
+```solidity
+function borrowBook(uint bookId, uint quantity) public
+```
 
-## Example
+**Parameters:**
+- `bookId`: The unique ID of the book.
+- `quantity`: The number of copies to borrow.
 
-1. Deploy the contract.
-2. Call `checkBalance` to view your token balance.
-3. Call `withdrawWithRequire(100)` to withdraw 100 tokens.
-4. Check your balance again by calling `checkBalance`.
+**Error Handling:**
+- `revert`: Reverts the transaction if the requested quantity exceeds the available copies.
 
-## Auther
-   Ankur
+### 3. `returnBook`
+
+Allows a user to return a borrowed book.
+
+```solidity
+function returnBook(uint bookId, uint quantity) public
+```
+
+**Parameters:**
+- `bookId`: The unique ID of the book.
+- `quantity`: The number of copies to return.
+
+**Error Handling:**
+- `assert`: Ensures that the correct number of books are returned by asserting the post-condition.
+
+## Error Handling
+
+The contract demonstrates the use of Solidity's built-in error handling:
+
+1. **`require`**: Validates conditions for adding a book (e.g., book title length).
+2. **`revert`**: Rolls back the transaction if a user tries to borrow more books than available.
+3. **`assert`**: Asserts the post-condition to ensure that the correct number of books are returned.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
